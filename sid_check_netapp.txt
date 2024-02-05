@@ -1,0 +1,5 @@
+mycl::> set diag 
+mycl::*> diag secd authentication translate -node local -vserver netappnas1 -sid S-1-5-21-2113365979-575229226-3083940573-500
+MYDOMAIN\Administrator (Windows User) 
+mycl::*> diag secd authentication translate -node local -vserver netappnas1 -win-name mydomain\administrator
+S-1-5-21-2113365979-575229226-3083940573-500

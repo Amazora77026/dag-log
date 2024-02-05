@@ -1,0 +1,27 @@
+C:\Users\dmitr>net use s: \\192.168.91.101\myshare1 /user:mydomain\administrator ***
+Команда выполнена успешно.
+
+C:\Users\dmitr>mkdir s:\folder1
+
+C:\Users\dmitr>date > s:\folder1\file1.txt
+
+C:\Users\dmitr>type s:\folder1\file1.txt
+Текущая дата: 05.02.2024
+Введите новую дату (дд-мм-гг):
+C:\Users\dmitr>ren s:\folder1\file1.txt file2.txt
+
+C:\Users\dmitr>del s:\folder1\file2.txt
+
+C:\Users\dmitr>del s:\folder1
+s:\folder1\*, вы уверены [Y(да)/N(нет)]? y
+
+C:\Users\dmitr>
+
+
+F:\pythonProject\venv\Scripts\python.exe C:/Users/dmitr/Documents/IB_project/audit/fpolicy_receiver.py
+NEGO_REQ,UUID:871e5b92-b897-11ee-ac69-000c294b4c1f,SessionId:f0870b67-c443-11ee-95e2-000c294b4c1f,PolicyName:fpolicy1
+ReqType:SMB_CREAT_DIR,WinSid:S-1-5-21-2113365979-575229226-3083940573-500,UnixUid:0,PathName:folder1,DisplayPath:\\NETAPPNAS1\myshare1\folder1
+ReqType:SMB_CREAT,WinSid:S-1-5-21-2113365979-575229226-3083940573-500,UnixUid:0,PathName:folder1\\file1.txt,DisplayPath:\\NETAPPNAS1\myshare1\folder1\file1.txt
+ReqType:SMB_WR,WinSid:S-1-5-21-2113365979-575229226-3083940573-500,UnixUid:0,PathName:folder1\\file1.txt,DisplayPath:\\NETAPPNAS1\myshare1\folder1\file1.txt,WriteLength:14
+ReqType:SMB_RD,WinSid:S-1-5-21-2113365979-575229226-3083940573-500,UnixUid:0,PathName:folder1\\file1.txt,DisplayPath:\\NETAPPNAS1\myshare1\folder1\file1.txt,ReadLength:58
+ReqType:SMB_REN,WinSid:S-1-5-21-2113365979-575229226-3083940573-500,UnixUid:0,PathName:folder1\\file2.txt,DisplayPath:\\NETAPPNAS1\myshare1\folder1\file1.txt

@@ -1,0 +1,10 @@
+vserver fpolicy policy external-engine create -vserver netappnas1 -engine-name fp_engine1 -primary-servers 192.168.91.1 -port 6789 -ssl-option no-auth -extern-engine-type asynchronous
+vserver fpolicy policy event create -vserver netappnas1 -event-name fp_events1 -protocol cifs -file-operations read,write,create,create_dir,delete,delete_dir,rename,rename_dir,setattr
+vserver fpolicy policy create -vserver netappnas1 -policy-name fpolicy1 -engine fp_engine1 -events fp_events1 -is-mandatory false
+vserver fpolicy policy scope create -vserver netappnas1 -policy-name fpolicy1 -volumes-to-include netappfs1
+vserver fpolicy enable -vserver netappnas1 -policy-name fpolicy1 -sequence-number 1
+vserver fpolicy show -vserver netappnas1 
+vserver fpolicy show-engine
+
+RECONNECT:
+vserver fpolicy disable -vserver netappnas1 -policy-name fpolicy1; vserver fpolicy enable -vserver netappnas1 -policy-name fpolicy1 -sequence-number 1

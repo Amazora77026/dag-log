@@ -1,0 +1,6 @@
+dsquery * -s 192.168.91.100 -u mydomain\administrator -p passsword -limit 1000 -filter "(&(objectCategory=Person)(objectClass=User)(sAMAccountName=*))" -attr sAMAccountName objectSid
+  sAMAccountName    objectSid
+  Guest             S-1-5-21-2113365979-575229226-3083940573-501
+  Administrator     S-1-5-21-2113365979-575229226-3083940573-500
+  smb-user          S-1-5-21-2113365979-575229226-3083940573-1103
+  krbtgt            S-1-5-21-2113365979-575229226-3083940573-502
