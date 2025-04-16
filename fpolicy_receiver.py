@@ -3,7 +3,8 @@ from datetime import datetime
 import xml.dom.minidom as ET
 import time
 import re
-
+import requests
+import json
 
 SEP = ","
 black_list = [b"\n", b"\x00", b"\x95", b"\x01", b'<?xml version="1.0"?>']
@@ -32,6 +33,8 @@ def ban(string_data):
     return string_data
 
 
+send = lambda x: requests.post("http://localhost:9428/insert/jsonline?_stream_fields=stream&_time_field=date&_msg_field=log._msg", json=x, headers={'Content-Type': 'application/json; charset=utf-8'})
+
 while True:
     sock.settimeout(0.1)
     data = conn.recv(32768)
@@ -53,24 +56,45 @@ while True:
         except:
             wrong()
     elif re.search(rb">SCREEN_REQ<", data):
-        root = ET.parseString(('<?xml version="1.0"?><root>' + str(data)[6:-1].replace('<?xml version="1.0"?>', '') + '</root>').encode('utf-8'))
+        data = re.sub(b'\x00\x22\x00\x00\x04.', b'', data[6:-1])
+        #root = ET.parseString(('<?xml version="1.0"?><root>' + str(data,'utf-8')[6:-1].replace('<?xml version="1.0"?>', '') + '</root>').encode('utf-8'))
+        root = ET.parseString(('<?xml version="1.0"?><root>' + str(data,'utf-8').replace('<?xml version="1.0"?>', '') + '</root>').encode('utf-8'))
         OpType = root.getElementsByTagName("ReqType")[0].firstChild.data
         WinSid = root.getElementsByTagName("WinSid")[0].firstChild.data
         UnixUid = root.getElementsByTagName("UnixUid")[0].firstChild.data
+        RdLength = "none"
+        WrLength = "none"
+        PathName = root.getElementsByTagName("PathName")[0].firstChild.data[2:]
         try:
             PathName = root.getElementsByTagName("TargetAccessPath")[0].getElementsByTagName("PathName")[0].firstChild.data[2:]
-        except:
-            PathName = root.getElementsByTagName("PathName")[0].firstChild.data[2:]
+        except Exception as e:
+            print("Error: {}".format(e))
         try:
             RdLength = root.getElementsByTagName("RdLength")[0].firstChild.data
-        except:
-            RdLength = "none"
+        except Exception as e:
+            print("Error: {}".format(e))
         try:
             WrLength = root.getElementsByTagName("WrLength")[0].firstChild.data
-        except:
-            WrLength = "none"
+        except Exception as e:
+            print("Error: {}".format(e))
         DisplayPath = root.getElementsByTagName("DisplayPath")[0].firstChild.data.replace("\\\\", '\\')
+        ip_addr = root.getElementsByTagName("ClientIp")[0].firstChild.data
+        size = root.getElementsByTagName("FileSize")[0].firstChild.data
+        ren_new_name = root.getElementsByTagName("PathName")[-1].firstChild.data
         print("\033[31mReqType:{1}{0}WinSid:{2}{0}UnixUid:{3}{0}PathName:{4}{0}DisplayPath:{5}{6}{7}\033[0m".format(SEP, OpType, WinSid, UnixUid, PathName, DisplayPath, SEP + "ReadLength:" + RdLength if RdLength != "none" else "", SEP + "WriteLength:" + WrLength if WrLength != "none" else ""))
         log("ReqType:{1}{0}WinSid:{2}{0}UnixUid:{3}{0}PathName:{4}{0}DisplayPath:{5}{6}{7}".format(SEP, OpType, WinSid, UnixUid, PathName, DisplayPath, SEP + "ReadLength:" + RdLength if RdLength != "none" else "", SEP + "WriteLength:" + WrLength if WrLength != "none" else ""))
-    time.sleep(0.5)
+        js = {}
+        js["date"] = "0"
+        js["stream"] = "dag_netapp"
+        if "REN" not in OpType and "SMB_WR" not in OpType and "SMB_RD" not in OpType:
+            j = {"_msg": "{0} {1} {2}".format(ip_addr, OpType, DisplayPath), "operation": OpType, "client_ip": ip_addr, "sid": WinSid, "size": size, "path": DisplayPath}
+        elif "REN" in OpType:
+            j = {"_msg": "{0} {1} {2}".format(ip_addr, OpType, DisplayPath), "operation": OpType, "client_ip": ip_addr, "sid": WinSid, "size": size, "path": DisplayPath, "new_name": ren_new_name}
+        elif "SMB_WR" in OpType:
+            j = {"_msg": "{0} {1} {2}".format(ip_addr, OpType, DisplayPath), "operation": OpType, "client_ip": ip_addr, "sid": WinSid, "size": size, "path": DisplayPath, "bytes_write": WrLength}
+        else:
+            j = {"_msg": "{0} {1} {2}".format(ip_addr, OpType, DisplayPath), "operation": OpType, "client_ip": ip_addr, "sid": WinSid, "size": size, "path": DisplayPath, "bytes_read": RdLength}
+        js["log"] = j
+        send(js)
+    time.sleep(0.001)
 f.close()
